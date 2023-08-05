@@ -27,8 +27,16 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    const usersCollection = client.db('hexaShop').collection('users')
     const productCollection = client.db('hexaShop').collection('products')
     const cartCollection = client.db('hexaShop').collection('carts')
+
+    // users related
+    app.post('/users', async(req, res)=>{
+      const user = req.body
+      const result = await usersCollection.insertOne(user)
+      res.send(result)
+    })
 
     // get all data of product
     app.get('/products', async(req, res)=>{
