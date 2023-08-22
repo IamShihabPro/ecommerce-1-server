@@ -56,8 +56,33 @@ async function run() {
       res.send({token})
     })
 
+    // use verifyJWT before using verifyAdmin
+    const verifyAdmin = async(req, res, next)=>{
+      const email = req.decoded.email;
+      const query = {email : email}
+      const user = await usersCollection.findOne(query)
+      if(user?.role !== 'admin'){
+        return res.status(403).send({error: true, message: 'forbidden access'}) 
+      }
+      next()
+    }
+
+    // security layer verifyJWT
+    // email same
+    // check admin
+    app.get('/users/admin/:email', verifyJWT, async(req, res)=>{
+      const email = req.params.email
+      if(req.decoded.email !== email){
+        return res.send({admin: false})
+      }
+      const query = {email: email}
+      const user = await usersCollection.findOne(query)
+      const result = {admin : user?.role === 'admin'}
+      res.send(result)
+    })
+
     // users related
-    app.get('/users', async(req, res)=>{
+    app.get('/users', verifyJWT, verifyAdmin, async(req, res)=>{
       result = await usersCollection.find().toArray()
       res.send(result)
   })
@@ -138,9 +163,7 @@ async function run() {
     res.send(result) 
   })
 
-
-
-
+  
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
