@@ -124,6 +124,12 @@ async function run() {
         result = await productCollection.find().toArray()
         res.send(result)
     })
+    // post product
+    app.post('/products', async(req, res)=>{
+        const item = req.body
+        const result = await productCollection.insertOne(item)
+        res.send(result)
+    })
 
      // get a gingle data of product
      app.get('/products/:id', async(req, res)=>{
