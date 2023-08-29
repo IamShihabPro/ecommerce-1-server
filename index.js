@@ -49,6 +49,7 @@ async function run() {
     const usersCollection = client.db('hexaShop').collection('users')
     const productCollection = client.db('hexaShop').collection('products')
     const cartCollection = client.db('hexaShop').collection('carts')
+    const paymentCollection = client.db('hexaShop').collection('payments')
 
     // jwt
     app.post('/jwt', (req, res)=>{
@@ -195,6 +196,20 @@ async function run() {
     res.send({
       clientSecret: paymentIntent.client_secret
     });
+  })
+
+
+  // payment related api
+  app.post('/payments', verifyJWT, async(req, res)=>{
+    const payment = req.body
+    const insertResult = await paymentCollection.insertOne(payment)
+
+
+    const query = {_id: {$in: payment.cartItem.map(id => new ObjectId(id) )}}
+    const deleteResult = await cartCollection.deleteMany(query)
+
+
+    res.send({insertResult, deleteResult})
   })
 
   
