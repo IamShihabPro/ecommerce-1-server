@@ -1,8 +1,8 @@
+require('dotenv').config()
 const express = require('express');
 const app = express()
 const cors = require('cors');
 const stripe = require('stripe')(process.env.Secret_KEY);
-require('dotenv').config()
 const jwt = require('jsonwebtoken');
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -126,14 +126,14 @@ async function run() {
         res.send(result)
     })
     // post product
-    app.post('/products', async(req, res)=>{
+    app.post('/products', verifyJWT, verifyAdmin, async(req, res)=>{
         const item = req.body
         const result = await productCollection.insertOne(item)
         res.send(result)
     })
 
 
-    app.delete('/products/:id', async(req, res)=>{
+    app.delete('/products/:id', verifyJWT, verifyAdmin, async(req, res)=>{
     const id = req.params.id
     const query = {_id : new ObjectId(id)}
     const result = await productCollection.deleteOne(query)
