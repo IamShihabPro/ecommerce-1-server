@@ -212,6 +212,49 @@ async function run() {
     res.send({insertResult, deleteResult})
   })
 
+
+  app.get('/admin-stats', verifyJWT, verifyAdmin, async (req, res)=>{
+    const users = await usersCollection.estimatedDocumentCount()
+    const products = await productCollection.estimatedDocumentCount()
+    const orders = await paymentCollection.estimatedDocumentCount()
+
+
+    const payments = await paymentCollection.find().toArray()
+    const revenue = payments.reduce((sum, payment)=> sum + payment.price ,0)
+
+
+    res.send({users, products, orders, revenue})
+  })
+
+
+  // app.get('/orders-stats', async(req, res)=>{
+  //   const pipeline = [
+  //     {
+  //       $lookup: {
+  //         from: 'products',
+  //         localField: 'productItem',
+  //         foreignField: '_id',
+  //         as: 'productItemsData'
+  //       }
+  //     },
+  //     {
+  //       $unwind: '$productItemsData'
+  //     },
+  //     {
+  //       $group: {
+  //         _id: '$productItemsData.category',
+  //         count: { $sum: 1 },
+  //         total: { $sum: '$productItemsData.price' }
+  //       }
+  //     },
+  //   ];
+
+  //   const result = await paymentCollection.aggregate(pipeline).toArray()
+  //   console.log(result);
+  //   res.send(result)
+
+  // })
+
   
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
