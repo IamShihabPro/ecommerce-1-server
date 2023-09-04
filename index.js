@@ -150,6 +150,12 @@ async function run() {
       res.send(result)
      })
 
+     // pagination but i didn't add this in my UI
+     app.get('/totalProducts', async(req, res)=>{
+      result = await productCollection.estimatedDocumentCount()
+      res.send({totalProducts: result})
+      })
+
 
      // cart collection
      app.post('/carts', async(req, res)=>{
