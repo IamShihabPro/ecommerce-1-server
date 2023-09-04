@@ -123,9 +123,10 @@ async function run() {
 
     // get all data of product
     app.get('/products', async(req, res)=>{
-        result = await productCollection.find().toArray()
+        result = await productCollection.find().sort({_id: -1}).toArray()
         res.send(result)
     })
+
     // post product
     app.post('/products', verifyJWT, verifyAdmin, async(req, res)=>{
         const item = req.body
