@@ -49,6 +49,7 @@ async function run() {
     const usersCollection = client.db('hexaShop').collection('users')
     const productCollection = client.db('hexaShop').collection('products')
     const cartCollection = client.db('hexaShop').collection('carts')
+    const reviewCollection = client.db('hexaShop').collection('reviews')
     const paymentCollection = client.db('hexaShop').collection('payments')
 
     // jwt
@@ -185,6 +186,19 @@ async function run() {
     const result = await cartCollection.deleteOne(query)
     res.send(result) 
   })
+
+  //review collection
+    app.get('/reviews', async(req, res)=>{
+      result = await productCollection.find().sort({_id: -1}).toArray()
+      res.send(result)
+    })
+
+     // reviews collection
+     app.post('/reviews', async(req, res)=>{
+      const item = req.body
+      const result = await reviewCollection.insertOne(item)
+      res.send(result)
+     })
 
 
 
