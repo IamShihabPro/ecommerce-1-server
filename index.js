@@ -189,7 +189,7 @@ async function run() {
 
   //review collection
     app.get('/reviews', async(req, res)=>{
-      result = await productCollection.find().sort({_id: -1}).toArray()
+      result = await reviewCollection.find().sort({_id: -1}).toArray()
       res.send(result)
     })
 
