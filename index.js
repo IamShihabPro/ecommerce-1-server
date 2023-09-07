@@ -50,6 +50,7 @@ async function run() {
     const productCollection = client.db('hexaShop').collection('products')
     const cartCollection = client.db('hexaShop').collection('carts')
     const reviewCollection = client.db('hexaShop').collection('reviews')
+    const contactsCollection = client.db('hexaShop').collection('contacts')
     const paymentCollection = client.db('hexaShop').collection('payments')
 
     // jwt
@@ -143,7 +144,7 @@ async function run() {
     res.send(result) 
   })
 
-     // get a gingle data of product
+     // get a single data of product
      app.get('/products/:id', async(req, res)=>{
       const id = req.params.id
       const query = {_id: new ObjectId(id)}
@@ -197,6 +198,20 @@ async function run() {
      app.post('/reviews', async(req, res)=>{
       const item = req.body
       const result = await reviewCollection.insertOne(item)
+      res.send(result)
+     })
+
+
+    //contact message collection
+    app.get('/contacts', async(req, res)=>{
+      result = await contactsCollection.find().sort({_id: -1}).toArray()
+      res.send(result)
+    })
+
+     // contact collection
+     app.post('/contacts', async(req, res)=>{
+      const item = req.body
+      const result = await contactsCollection.insertOne(item)
       res.send(result)
      })
 
