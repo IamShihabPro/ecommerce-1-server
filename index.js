@@ -87,7 +87,7 @@ async function run() {
 
     // users related
     app.get('/users', verifyJWT, verifyAdmin, async(req, res)=>{
-      result = await usersCollection.find().toArray()
+      const result = await usersCollection.find().toArray()
       res.send(result)
   })
 
@@ -125,9 +125,22 @@ async function run() {
 
     // get all data of product
     app.get('/products', async(req, res)=>{
-        result = await productCollection.find().sort({_id: -1}).toArray()
+        const result = await productCollection.find().sort({_id: -1}).toArray()
         res.send(result)
     })
+
+  //   app.get('/products', async (req, res) => {
+  //     try {
+  //         const result = await productCollection.find().sort({_id: -1}).toArray();
+  //         res.send(result);
+  //     } catch (error) {
+  //         console.error(error);
+  //         res.status(500).send({ error: true, message: 'Internal Server Error' });
+  //     }
+  // });
+  
+
+
 
     // post product
     app.post('/products', verifyJWT, verifyAdmin, async(req, res)=>{
@@ -154,7 +167,7 @@ async function run() {
 
      // pagination but i didn't add this in my UI
      app.get('/totalProducts', async(req, res)=>{
-      result = await productCollection.estimatedDocumentCount()
+      const result = await productCollection.estimatedDocumentCount()
       res.send({totalProducts: result})
       })
 
@@ -190,7 +203,7 @@ async function run() {
 
   //review collection
     app.get('/reviews', async(req, res)=>{
-      result = await reviewCollection.find().sort({_id: -1}).toArray()
+      const result = await reviewCollection.find().sort({_id: -1}).toArray()
       res.send(result)
     })
 
@@ -204,7 +217,7 @@ async function run() {
 
     //contact message collection
     app.get('/contacts', async(req, res)=>{
-      result = await contactsCollection.find().sort({_id: -1}).toArray()
+      const result = await contactsCollection.find().sort({_id: -1}).toArray()
       res.send(result)
     })
 
