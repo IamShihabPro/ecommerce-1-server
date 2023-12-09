@@ -1,17 +1,24 @@
-require('dotenv').config()
-const express = require('express');
-const app = express()
+const express = require('express')
 const cors = require('cors');
-const stripe = require('stripe')(process.env.Secret_KEY);
+const morgan = require('morgan');
+require('dotenv').config()
 const jwt = require('jsonwebtoken');
-
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-
+const app = express()
+const stripe = require('stripe')(process.env.Secret_KEY);
 const port = process.env.PORT || 5000
 
+
 // middleware
+const corsOptions = {
+  origin: '*',
+  credentials: true,
+  optionSuccessStatus: 200,
+}
+app.use(cors(corsOptions))
 app.use(express.json())
-app.use(cors())
+app.use(morgan('dev'))
+
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const verifyJWT = (req, res, next) =>{
   const authorization = req.headers.authorization
@@ -30,7 +37,7 @@ const verifyJWT = (req, res, next) =>{
 }
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lgdhrpf.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lgdhrpf.mongodb.net/?retryWrites=true&w=majority`
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -71,6 +78,26 @@ async function run() {
       next()
     }
 
+
+      // users related
+      app.get('/users', verifyJWT, verifyAdmin, async(req, res)=>{
+          const result = await usersCollection.find().toArray()
+          res.send(result)
+      })
+
+    app.post('/users', async(req, res)=>{
+      const user = req.body
+      const query = {email: user.email}
+      const exitUser = await usersCollection.findOne(query)
+      console.log(exitUser);
+      if(exitUser){
+        return res.send({message: 'user already exits'})
+      }
+      const result = await usersCollection.insertOne(user)
+      res.send(result)
+    })
+
+
     // security layer verifyJWT
     // email same
     // check admin
@@ -85,24 +112,7 @@ async function run() {
       res.send(result)
     })
 
-    // users related
-    app.get('/users', verifyJWT, verifyAdmin, async(req, res)=>{
-      const result = await usersCollection.find().toArray()
-      res.send(result)
-  })
 
-
-    app.post('/users', async(req, res)=>{
-      const user = req.body
-      const query = {email: user.email}
-      const exitUser = await usersCollection.findOne(query)
-      console.log(exitUser);
-      if(exitUser){
-        return res.send({message: 'user already exits'})
-      }
-      const result = await usersCollection.insertOne(user)
-      res.send(result)
-    })
 
     app.patch('/users/admin/:id', async(req, res)=>{
       id = req.params.id
@@ -128,18 +138,6 @@ async function run() {
         const result = await productCollection.find().sort({_id: -1}).toArray()
         res.send(result)
     })
-
-  //   app.get('/products', async (req, res) => {
-  //     try {
-  //         const result = await productCollection.find().sort({_id: -1}).toArray();
-  //         res.send(result);
-  //     } catch (error) {
-  //         console.error(error);
-  //         res.status(500).send({ error: true, message: 'Internal Server Error' });
-  //     }
-  // });
-  
-
 
 
     // post product
@@ -229,8 +227,6 @@ async function run() {
      })
 
 
-
-
   // create payment
   app.post("/create-payment-intent", verifyJWT, async (req, res) =>{
     const { price } = req.body;
@@ -274,35 +270,6 @@ async function run() {
 
     res.send({users, products, orders, revenue})
   })
-
-
-  // app.get('/orders-stats', async(req, res)=>{
-  //   const pipeline = [
-  //     {
-  //       $lookup: {
-  //         from: 'products',
-  //         localField: 'productItem',
-  //         foreignField: '_id',
-  //         as: 'productItemsData'
-  //       }
-  //     },
-  //     {
-  //       $unwind: '$productItemsData'
-  //     },
-  //     {
-  //       $group: {
-  //         _id: '$productItemsData.category',
-  //         count: { $sum: 1 },
-  //         total: { $sum: '$productItemsData.price' }
-  //       }
-  //     },
-  //   ];
-
-  //   const result = await paymentCollection.aggregate(pipeline).toArray()
-  //   console.log(result);
-  //   res.send(result)
-
-  // })
 
   
     // Send a ping to confirm a successful connection
